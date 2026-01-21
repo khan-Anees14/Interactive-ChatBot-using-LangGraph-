@@ -1,4 +1,4 @@
-🤖 Streamlit LangGraph Chatbot
+🤖 Interactive LangGraph Chatbot
 
 A simple yet powerful Streamlit-based chatbot built using LangGraph and LangChain. This project demonstrates how to maintain chat history using Streamlit session state and how to invoke a backend conversational graph for generating AI responses.
 
