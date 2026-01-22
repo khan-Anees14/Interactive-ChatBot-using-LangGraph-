@@ -10,7 +10,7 @@ import sqlite3
 
 ## *************define llm*************************
 llm  = ChatOllama(
-    model = 'llama3',
+    model = 'llama3',    # mistral 7B ggfu could also be used for faster response on local use cases
     temperature = 0
 )
 
