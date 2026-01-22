@@ -35,7 +35,7 @@ if 'thread_id' not in st.session_state:
     st.session_state['thread_id'] = generate_thread_id()
 
 if 'chat_threads' not in st.session_state:
-    st.session_state['chat_threads'] = retrieve_all_threads()
+    st.session_state['chat_threads'] = retrieve_all_threads()    # retrieving all the prevoius threads for time travel
 
 add_threads(st.session_state['thread_id'])
 
