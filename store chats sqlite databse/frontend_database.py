@@ -1,7 +1,7 @@
 import streamlit as st
 
-from langgraph_database_backend import chatbot, retrieve_all_threads
-from langchain_core.messages import HumanMessage
+from langgraph_tool_backend import chatbot
+from langchain_core.messages import HumanMessage, AIMessage
 import uuid     # everytime it will generate new thread_id
 
 # ******************************************* Utility Function *********************************************************
@@ -35,7 +35,7 @@ if 'thread_id' not in st.session_state:
     st.session_state['thread_id'] = generate_thread_id()
 
 if 'chat_threads' not in st.session_state:
-    st.session_state['chat_threads'] = retrieve_all_threads()    # retrieving all the prevoius threads for time travel
+    st.session_state['chat_threads'] = []
 
 add_threads(st.session_state['thread_id'])
 
@@ -79,26 +79,24 @@ user_input = st.chat_input('Ask Anything to ChatBot ...')
 
 if user_input:
 
-    # first add the message to message_history
-    st.session_state['message_history'].append({'role': 'user', 'content': user_input})
-    with st.chat_message('user'):
-        st.text(user_input)
-
     CONFIG = {'configurable': {'thread_id': st.session_state['thread_id']},
-          'metadata': {
-              'thread_id' :st.session_state['thread_id']
-          },
-          'run_name': 'chat turn'
-          }
-
+        'metadata': {
+            'thread_id' :st.session_state['thread_id']
+        },
+        'run_name': 'chat turn'
+        }
     # first add the message to message_history
-    with st.chat_message('assistant'):
+    with st.chat_message("assistant"):
+        def ai_only_stream():
+            for message_chunk, metadata in chatbot.stream(
+                {"messages": [HumanMessage(content=user_input)]},
+                config=CONFIG,
+                stream_mode="messages"
+            ):
+                if isinstance(message_chunk, AIMessage):
+                    # yield only assistant tokens
+                    yield message_chunk.content
 
-        ai_message = st.write_stream(
-            message_chunk.content for message_chunk, metadata in chatbot.stream(
-                    {'messages': [HumanMessage(content=user_input)]},
-                    config=CONFIG,
-                    stream_mode = 'messages'
-            )
-        )
+        ai_message = st.write_stream(ai_only_stream())
+
     st.session_state['message_history'].append({'role': 'assistant', 'content': ai_message})
